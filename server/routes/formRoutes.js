@@ -1,16 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const FormResponse = require('../models/formResponse');
+const Joi = require('joi');
 
 // POST / - Create a new form response
 router.post('/', async (req, res) => {
-  try {
-    const newResponse = await FormResponse.create(req.body);
-    res.status(201).json({ id: newResponse._id });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create response' });
-  }
-});
+  const schema = Joi.object({
+    movieTitle: Joi.string().required(),
+    rating: Joi.number().required(),
+    director: Joi.string(), // Optional field
+    // Add validation for other fields as needed
+  });
+
+  const { error } = schema.validate(req.body);
+
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }});
 
 // GET /{id} - Get a specific form response
 router.get('/:id', async (req, res) => {
